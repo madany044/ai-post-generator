@@ -235,7 +235,7 @@ label.lbl{display:block;font-size:12px;color:var(--text3);margin-bottom:6px;font
       <button class="nav-tab" onclick="switchPage('history',this)">History</button>
       <button class="nav-tab" onclick="switchPage('scheduler',this)">Scheduler</button>
       <button class="nav-tab" onclick="switchPage('analytics',this)">Analytics</button>
-      <button class="nav-tab" onclick="switchPage('setup',this)">Setup</button>
+      <!-- setup tab hidden in demo mode -->
     </div>
     <div class="nav-right">
       <div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiStatusText">No Gemini key</span></div>
@@ -494,7 +494,7 @@ let historySelected = null;
 let stats = JSON.parse(localStorage.getItem('pc_stats')||'{"total":0,"copied":0,"scheduled":0,"sessions":0}');
 let scheduled = JSON.parse(localStorage.getItem('pc_sched')||'[]');
 let history = JSON.parse(localStorage.getItem('pc_history')||'[]');
-let apiKey = localStorage.getItem('pc_gemini_key')||'';
+let apiKey = 'demo'; // key is server-side
 
 const LIMITS = {'Twitter/X':280,'WhatsApp Status':139,'Instagram':2200,'LinkedIn':3000,'Facebook':63206,'YouTube Community':1500};
 const PLAT_COLORS = {
@@ -510,7 +510,7 @@ const PLAT_COLORS = {
 function init() {
   stats.sessions = (stats.sessions||0)+1;
   saveStats();
-  updateApiStatus();
+  apiKey='demo'; updateApiStatus();
   loadBrand();
   renderHistory();
   renderSchedList();
@@ -582,7 +582,7 @@ function renderHashtags(){
 
 // ── GENERATE ───────────────────────────────────────────
 async function generate(){
-  if(!apiKey){showToast('Add your API key in Setup tab first!','⚠');switchPage('setup',document.querySelectorAll('.nav-tab')[4]);return}
+  // key handled server-side
   const topic=document.getElementById('topic').value.trim();
   if(!topic){showToast('Please describe your topic!','⚠');return}
   const selected=[...document.querySelectorAll('.plat.active')].map(b=>b.dataset.p);
@@ -640,14 +640,14 @@ ${abMode?
 `[{"platform":"Instagram","post":"...","image_prompt":"..."},...]`}`;
 
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
+    const res=await fetch('/.netlify/functions/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.9,maxOutputTokens:2500}})
+      body:JSON.stringify({prompt})
     });
-    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'API error '+res.status)}
+    if(!res.ok){const e=await res.json();throw new Error(e.error||'API error '+res.status)}
     const data=await res.json();
-    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    const raw=data.text||'';
     const clean=raw.replace(/```json|```/g,'').trim();
     currentPosts=JSON.parse(clean);
     renderResults(currentPosts,abMode,imgMode);
@@ -886,12 +886,12 @@ function saveApiKey(){
   const v=document.getElementById('apiKeyInput').value.trim();
   if(!v){showToast('Enter a valid key!','⚠');return}
   apiKey=v;localStorage.setItem('pc_gemini_key',v);
-  updateApiStatus();showToast('API key saved!','✓');
+  apiKey='demo'; updateApiStatus();showToast('API key saved!','✓');
 }
 function clearApiKey(){
   apiKey='';localStorage.removeItem('pc_gemini_key');
   document.getElementById('apiKeyInput').value='';
-  updateApiStatus();showToast('Key removed','✓');
+  apiKey='demo'; updateApiStatus();showToast('Key removed','✓');
 }
 async function testApiKey(){
   const k=document.getElementById('apiKeyInput').value.trim()||apiKey;
@@ -899,13 +899,13 @@ async function testApiKey(){
   const r=document.getElementById('testResult');
   r.textContent='Testing...';r.style.color='var(--text3)';
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`,{
+    const res=await fetch('/.netlify/functions/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts:[{text:'hi'}]}],generationConfig:{maxOutputTokens:5}})
+      body:JSON.stringify({prompt:'say hi'})
     });
-    if(res.ok){r.textContent='✓ Connected — Gemini is ready!';r.style.color='var(--green)';apiKey=k;localStorage.setItem('pc_gemini_key',k);updateApiStatus()}
-    else{const e=await res.json();r.textContent='✕ '+(e.error?.message||'Invalid key');r.style.color='var(--red)'}
+    if(res.ok){r.textContent='✓ Connected — Gemini is ready!';r.style.color='var(--green)';updateApiStatus()}
+    else{const e=await res.json();r.textContent='✕ '+(e.error||'Server error');r.style.color='var(--red)'}
   }catch(e){r.textContent='✕ Network error';r.style.color='var(--red)'}
 }
 function updateApiStatus(){
@@ -914,7 +914,7 @@ function updateApiStatus(){
   const dot2=document.getElementById('setupDot');
   const sts=document.getElementById('setupStatus');
   if(apiKey){
-    dot1.className='api-dot ok';txt.textContent='Gemini connected ✦ Free';
+    dot1.className='api-dot ok';txt.textContent='Live demo ✦ Free';
     dot2.className='api-dot ok';sts.textContent='Gemini API key saved — ready to generate (Free)';sts.style.color='var(--green)';
   } else {
     dot1.className='api-dot err';txt.textContent='No Gemini key';
