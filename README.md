@@ -1,106 +1,79 @@
 # PostCraft AI — Social Media Post Generator
-### Powered by Google Gemini API (100% Free)
+
+> AI-powered content generation for 6 platforms, built with LLMs and deployed serverless.
+
+**Live Demo → [ai-post-generators.netlify.app](https://ai-post-generators.netlify.app)**
 
 ---
 
-## What is this?
+## Overview
 
-PostCraft AI is a fully working, single-file web app that uses **Google Gemini AI (free)** to generate professional social media posts for 6 platforms — Instagram, LinkedIn, Twitter/X, Facebook, WhatsApp, and YouTube Community.
+PostCraft AI uses a large language model (Google Gemini 2.5) to generate platform-optimized social media content from a single business description. Instead of manually writing different copies for each platform, users describe their product or topic once — the LLM handles tone adaptation, character limits, hashtag strategy, and language style per platform automatically.
 
-**No server. No install. No payment. Just open the HTML file.**
-
----
-
-## Quick Start (3 minutes, zero cost)
-
-### Step 1 — Get your FREE Gemini API key
-
-1. Go to: **https://aistudio.google.com/apikey**
-2. Sign in with any Google account (Gmail)
-3. Click "Create API Key"
-4. Copy the key (starts with AIzaSy...)
-
-✅ Completely free — 1,500 requests/day, no credit card needed ever.
+Built as a zero-dependency, single-file frontend with a serverless API proxy — no backend server, no framework, no database.
 
 ---
 
-### Step 2 — Open the app
+## How the AI Works
 
-1. Download social_post_generator.html
-2. Double-click it — opens in your browser instantly
-3. Works in Chrome, Edge, Firefox, Safari
+The core of this project is **prompt engineering** — structuring the LLM prompt to carry brand context, tone, goal, platform rules, and language preference simultaneously. Each generation call passes:
 
----
+- Business name, industry, target audience, and brand voice as system context
+- Platform-specific constraints (e.g. Twitter/X ≤ 280 chars, Instagram hashtag density)
+- Tone and goal modifiers to shape the LLM's output style
+- Optional A/B instruction to generate two distinct creative angles per platform
 
-### Step 3 — Add your Gemini API key
-
-1. Click the Setup tab in the top navigation
-2. Paste your Gemini API key (AIzaSy...)
-3. Click Save
-4. Click Test connection — you should see "Connected — Gemini is ready!"
-5. Green dot in top right = ready to generate!
+The Gemini API call is proxied through a Netlify serverless function — keeping the API key server-side and invisible to the client.
 
 ---
 
-### Step 4 — Generate your first posts
+## Features
 
-1. Go to Generator tab
-2. Fill in Brand Memory (saves automatically)
-3. Type your post topic
-4. Choose Tone, Goal, Language
-5. Toggle A/B variants ON for 2 versions per platform
-6. Toggle Image Prompts ON for Midjourney/DALL-E suggestions
-7. Select platforms, add hashtags
-8. Click Generate Posts
-
----
-
-## Gemini Free Tier
-
-- 1,500 requests/day
-- 15 requests/minute
-- Cost: Rs.0 forever
-- No credit card needed
-- Only needs a Google account
-
----
-
-## How to Earn Money
-
-### Freelance (Start today)
-Offer social media content packages to local businesses:
-- Starter: 10 posts/month → Rs.999
-- Growth: 30 posts/month → Rs.2,499
-- Premium: 60 posts + scheduling → Rs.4,999
-
-### Fiverr Gig
-"I will write 10 social media posts for your business" — Rs.500–2,000 per order
-
-### Monthly Retainer
-5 clients at Rs.999/month = Rs.4,995/month while still in college
-
----
-
-## Deploy Online (Free)
-
-Netlify Drop: https://app.netlify.com/drop
-Drag and drop the HTML file → get a live link instantly
-
-GitHub Pages: Upload as index.html → Settings → Pages → Enable
-
----
-
-## Troubleshooting
-
-- "No Gemini key" → Go to Setup tab, paste AIzaSy... key, click Save
-- "API error 400" → Key is wrong, create new one at aistudio.google.com
-- "API error 429" → Rate limit hit, wait 1 minute
-- Page looks broken → Use Chrome or Edge
+| Feature | Description |
+|---|---|
+| **Multi-platform generation** | Instagram, LinkedIn, Twitter/X, Facebook, WhatsApp Status, YouTube Community |
+| **A/B variants** | Two creative directions per platform for split testing |
+| **AI image prompts** | Midjourney / DALL-E style visual prompts generated alongside each post |
+| **Brand memory** | Business name, industry, audience and voice saved locally — injected into every prompt |
+| **Prompt controls** | 9 tones × 9 goals × 7 languages including Hinglish |
+| **Inline editing** | Edit any AI-generated post directly before copying |
+| **Post scheduler** | Attach a date and time to each post per platform |
+| **Generation history** | Last 30 sessions stored locally and fully restorable |
+| **Export** | Download all posts as CSV or JSON |
+| **Serverless proxy** | API key never exposed to the client or version control |
 
 ---
 
 ## Tech Stack
-- UI: HTML5 + CSS3 + Vanilla JavaScript
-- AI: Google Gemini 2.0 Flash (free)
-- Storage: Browser localStorage
-- Zero dependencies, no npm, no frameworks
+
+| Layer | Technology |
+|---|---|
+| **LLM** | Google Gemini 2.5 Flash via REST API |
+| **Frontend** | Vanilla HTML5, CSS3, JavaScript — zero dependencies |
+| **Serverless function** | Netlify Functions (Node.js) — API proxy |
+| **Storage** | Browser localStorage — no database |
+| **Deployment** | Netlify (CI/CD via GitHub) |
+| **Security** | API key stored as Netlify environment variable |
+
+---
+
+## Why No Framework
+
+Keeping the entire UI in a single HTML file was a deliberate choice — it demonstrates that clean, responsive, and interactive UIs don't require a build pipeline. It also makes the project portable: download one file, open in browser, it works.
+
+---
+
+## Indian Language Support
+
+The LLM prompt is language-aware — switching to Hindi, Hinglish, Kannada, Tamil, Telugu, or Marathi adjusts the generation language while preserving platform formatting rules and brand context. Hinglish in particular performs well for Instagram and WhatsApp audiences in India.
+
+---
+
+## Live Demo
+
+Try it without any setup at **[ai-post-generators.netlify.app](https://ai-post-generators.netlify.app)**
+The demo runs on a server-side key — no account or API key needed.
+
+---
+
+<p align="center">Developed and designed by <strong>Madan Y</strong></p>
